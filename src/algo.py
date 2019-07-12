@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import logging as log
  
 #Define Global Variables
 SMA = 10                          #Number of days for limit orders
@@ -13,6 +14,7 @@ def initialize(context):
     """
     Called once at the start of the algorithm.
     """  
+    log.info('Algo has started')
     schedule_function(rebalance, date_rules.every_day(), time_rules.market_open(minutes=45))
     schedule_function(buy_longs, date_rules.every_day(), time_rules.market_open(hours=2))
     schedule_function(my_record_vars, date_rules.every_day(), time_rules.market_close())
@@ -84,7 +86,7 @@ def buy_longs(context, data):
     #place orders for each asset
     for stock in stocks:
         if data.can_trade(stock):         
-            order(stock, context.stocks.loc[stock, 'Shares'], style=LimitOrder(context.stocks.loc[stock, 'Price']))
+            order(stock, context.stocks.loc[stock, 'Shares'], limit_price=context.stocks.loc[stock, 'Price'])
     log.info(context.stocks[['Weight','Curr_Weight','Need','Get','Shares','Price']])
  
 def rebalance(context,data):
